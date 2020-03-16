@@ -1,0 +1,1407 @@
+cscope 15 $HOME/S_data/test/test_c++/test_few_files -q 0000000077 0000007796
+	@/home/shaco/S_data/test/test_c++/test_few_files/Makefile
+
+2 
+	gCC
+=
+gcc
+
+
+3 
+CPP
+=
+g
+++
+
+4 #debug文件夹里的
+makef�e
+文件需要最后执行，所以这里需要执行的子目录要排除
+debug
+文件夹，这里使用
+awk
+排除了debug文件夹，读取剩下的文件夹
+
+5 
+SUBDIRS
+=
+$
+(
+sh�l
+ 
+ls
+ -
+l
+ | 
+g�p
+ ^
+d
+ | 
+awk
+ '{if($$9 != "debug")�rint $$9}')
+
+6 #无需下一行的注释代码，因为我们已经知道
+debug
+里的
+makef�e
+是最后执行的，所以最后直接去debug目录下执行指定的makefile文件就行，具体下面有注释
+
+7 #DEBUG=
+$
+(
+sh�l
+ 
+ls
+ -
+l
+ | 
+g�p
+ ^
+d
+ | 
+awk
+ '{if($$9 == "debug")�rint $$9}')
+
+9 
+ROOT_DIR
+=
+	$$
+(
+sh�l
+ 
+pwd
+)
+
+10 #最终
+b�
+文件的名字，可以更改为自己需要的
+
+11 
+BIN
+=
+��_�w_f�es
+
+
+13 
+OBJS_DIR
+=
+debug
+/
+obj
+
+
+15 
+BIN_DIR
+=
+debug
+/
+b�
+
+
+16 #所有的
+��ude
+文件夹
+
+17 
+INC_DIR
+=
+	`$
+(
+ROOT_DIR
+)/
+��ude
+
+
+18 
+INC_DIR
++=
+	`$
+(
+ROOT_DIR
+)/
+a
+/
+��ude
+
+
+19 
+INC_DIR
++=
+	`$
+(
+ROOT_DIR
+)/
+b
+/
+��ude
+
+
+20 
+INC_DIR
++=
+	`$
+(
+ROOT_DIR
+)/
+c
+/
+��ude
+
+
+21 #获取当前目录下的
+c
+文件集，放在变量
+CUR_C_SOURCE
+中
+
+22 
+CUR_C_SOURCE
+=
+$
+{
+w�d�rd
+ *.
+c
+}
+
+23 
+CUR_CPP_SOURCE
+=
+$
+{
+w�d�rd
+ *.
+�p
+}
+
+24 
+CUR_CXX_SOURCE
+=
+$
+{
+w�d�rd
+ *.
+cxx
+}
+
+25 #将对应的
+c
+文件名转为
+o
+文件后放在下面的
+CUR_OBJS
+变量中
+
+26 
+CUR_C_OBJS
+=
+$
+{
+�tsub�
+ %.
+c
+, %.
+o
+, $(
+CUR_C_SOURCE
+)}
+
+27 
+CUR_CPP_OBJS
+=
+$
+{
+�tsub�
+ %.
+�p
+, %.
+o
+, $(
+CUR_CPP_SOURCE
+)}
+
+28 
+CUR_CXX_OBJS
++=
+$
+{
+�tsub�
+ %.
+cxx
+, %.
+o
+, $(
+CUR_CXX_SOURCE
+)}
+
+29 #表示用于 
+C
+++ 编译器的选项
+
+30 
+CPPFLAGS
+=-
+W�l
+ -
+�d
+=
+c
+++11 -
+g
+ -
+O2
+ -
+	$I$
+()
+
+31 
+CPPFLAGS
++�
+	`$
+(
+add�efix
+ -
+I
+, 
+	$$
+(
+INC_DIR
+))
+
+33 #CPPFLAGS+�
+	`$
+(
+add�efix
+ -
+I
+, $(
+ROOT_DIR
+)/$(
+SUBDIRS
+))
+
+34 #CPPFLAGS+�
+	`$
+(
+addsuffix
+ /
+��ude
+, $(
+ROOT_DIR
+)/$(
+SUBDIRS
+))
+
+36 
+LIBS
+=
+
+38 
+LDFLAGS
+=
+
+39 #将以下变量导出到子
+sh�l
+中，本次相当于导出到子目录下的
+makef�e
+中
+
+40 
+exp�t
+ 
+CC
+ 
+BIN
+ 
+OBJS_DIR
+ 
+BIN_DIR
+ 
+ROOT_DIR
+ 
+CPP
+ 
+LIBS
+ 
+LDFLAGS
+ 
+CPPFLAGS
+
+
+41 #注意这里的顺序，需要先执行
+SUBDIRS
+最后才能是
+DEBUG
+
+
+42 #如果是
+�p
+用下面的,
+c
+用上面的
+
+43 #�l:
+	`$
+(
+SUBDIRS
+�$(
+CUR_C_OBJS
+�
+DEBUG
+
+
+44 
+�l
+:
+	`$
+(
+SUBDIRS
+�$(
+CUR_CPP_OBJS
+�
+	$$
+(
+CUR_CXX_OBJS
+�
+DEBUG
+
+
+45 #�l:
+	`$
+(
+SUBDIRS
+�$(
+CUR_CPP_OBJS
+�
+DEBUG
+
+
+46 #递归执行子目录下的
+makef�e
+文件，这是递归执行的关键
+
+47 
+	$$
+(
+SUBDIRS
+):
+ECHO
+
+
+48 
+make
+ -
+C
+ 
+$
+@
+
+49 
+DEBUG
+:
+ECHO
+
+
+50 #直接去
+debug
+目录下执行
+makef�e
+文件
+
+51 
+make
+ -
+C
+ 
+debug
+
+
+52 
+ECHO
+:
+
+53 @
+echo
+ "SUBDIRS:" 
+	`$
+(
+SUBDIRS
+)
+
+54 @
+echo
+ "CUR_CPP_OBJS:" 
+	`$
+(
+CUR_CPP_OBJS
+)
+
+55 @
+echo
+ "CUR_CPP_SOURCE:" 
+	`$
+(
+CUR_CPP_SOURCE
+)
+
+56 @
+echo
+ "CUR_CXX_SOURCE:" 
+	`$
+(
+CUR_CXX_SOURCE
+)
+
+57 @
+echo
+ "CPPFLAGS :" 
+	$$
+(
+CPPFLAGS
+)
+
+58 #将
+c
+文件编译为
+o
+文件，并放在指定放置目标文件的目录中即
+OBJS_DIR
+
+
+59 
+	$$
+(
+CUR_C_OBJS
+):%.
+o
+:%.
+c
+
+
+60 
+	`$
+(
+CC
+�$(
+CPPFLAGS
+�$(
+LDFLAGS
+�$(
+LIBS
+�-
+c
+ 
+$
+^ -
+o
+ $(
+ROOT_DIR
+)/$(
+OBJS_DIR
+)/$@
+
+61 
+	$$
+(
+CUR_CPP_OBJS
+):%.
+o
+:%.
+�p
+
+
+62 
+	`$
+(
+CPP
+�$(
+CPPFLAGS
+�$(
+LDFLAGS
+�$(
+LIBS
+�-
+c
+ 
+$
+^ -
+o
+ $(
+ROOT_DIR
+)/$(
+OBJS_DIR
+)/$@
+
+63 
+	$$
+(
+CUR_CXX_OBJS
+):%.
+o
+:%.
+cxx
+
+
+64 
+	`$
+(
+CPP
+�$(
+CPPFLAGS
+�$(
+LDFLAGS
+�$(
+LIBS
+�-
+c
+ 
+$
+^ -
+o
+ $(
+ROOT_DIR
+)/$(
+OBJS_DIR
+)/$@
+
+65 
+CLEAN
+:
+
+66 @
+rm
+ 
+	`$
+(
+OBJS_DIR
+)
+
+	@/home/shaco/S_data/test/test_c++/test_few_files/a/include/a.h
+
+1 #�agm�
+��
+
+
+3 
+	~<io��am
+>
+
+4 
+	~<�r�g
+>
+
+6 
+us�g
+ 
+�me�a�
+ 
+	g�d
+;
+
+8 
+	#THIS_IS_B_USE
+ "BBBBBBBBBBBBBBBBB"
+
+	)
+
+10 cڡ 
+�r�g
+ 
+a
+();
+
+	@/home/shaco/S_data/test/test_c++/test_few_files/a/makefile
+
+1 #次级目录,比如当前的
+mod�
+文件夹,其下包含了
+�c
+和
+��ude
+文件夹,需要再进一层到src进行编译
+
+2 #子目录的
+Makef�e
+直接读取其子目录就行
+
+3 #SUBDIRS=
+$
+(
+sh�l
+ 
+ls
+ -
+l
+ | 
+g�p
+ ^
+d
+ | 
+awk
+ '{print $$9}')
+
+4 #直接指定为
+�c
+
+
+5 
+	gSUBDIRS
+=
+�c
+
+
+6 #以下同根目录下的
+makef�e
+的相同代码的解释
+
+7 
+CUR_C_SOURCE
+=
+$
+{
+w�d�rd
+ *.
+c
+}
+
+8 
+CUR_CPP_SOURCE
+=
+$
+{
+w�d�rd
+ *.
+�p
+}
+
+9 
+CUR_CXX_SOURCE
+=
+$
+{
+w�d�rd
+ *.
+cxx
+}
+
+10 
+CUR_C_OBJS
+=
+$
+{
+�tsub�
+ %.
+c
+, %.
+o
+, $(
+CUR_C_SOURCE
+)}
+
+11 
+CUR_CPP_OBJS
+=
+$
+{
+�tsub�
+ %.
+�p
+, %.
+o
+, $(
+CUR_CPP_SOURCE
+)}
+
+12 
+CUR_CXX_OBJS
+=
+$
+{
+�tsub�
+ %.
+cxx
+, %.
+o
+, $(
+CUR_CXX_SOURCE
+)}
+
+13 #�l:
+$
+(
+SUBDIRS
+�$(
+CUR_C_OBJS
+)
+
+14 
+�l
+:
+$
+(
+SUBDIRS
+�$(
+CUR_CPP_OBJS
+�$(
+CUR_CXX_SOURCE
+)
+
+15 
+	$$
+(
+SUBDIRS
+):
+ECHO
+
+
+16 
+make
+ -
+C
+ 
+$
+@
+
+17 
+	$$
+(
+CUR_C_OBJS
+):%.
+o
+:%.
+c
+
+
+18 
+	`$
+(
+CC
+�$(
+CPPFLAGS
+�$(
+LDFLAGS
+�$(
+LIBS
+�-
+c
+ 
+$
+^ -
+o
+ $(
+ROOT_DIR
+)/$(
+OBJS_DIR
+)/$@
+
+19 
+	$$
+(
+CUR_CPP_OBJS
+):%.
+o
+:%.
+�p
+
+
+20 
+	`$
+(
+CC
+�$(
+CPPFLAGS
+�$(
+LDFLAGS
+�$(
+LIBS
+�-
+c
+ 
+$
+^ -
+o
+ $(
+ROOT_DIR
+)/$(
+OBJS_DIR
+)/$@
+
+21 
+	$$
+(
+CUR_CXX_OBJS
+):%.
+o
+:%.
+cxx
+
+
+22 
+	`$
+(
+CC
+�$(
+CPPFLAGS
+�$(
+LDFLAGS
+�$(
+LIBS
+�-
+c
+ 
+$
+^ -
+o
+ $(
+ROOT_DIR
+)/$(
+OBJS_DIR
+)/$@
+
+23 
+ECHO
+:
+
+24 @
+echo
+ 
+	`$
+(
+SUBDIRS
+)
+
+	@/home/shaco/S_data/test/test_c++/test_few_files/a/src/a.cpp
+
+1 
+	~"a.h
+"
+
+2 
+	~"c.h
+"
+
+4 cڡ 
+�r�g
+ 
+	$a
+()
+
+6 
+cout
+ << 
+THIS_IS_A_USE
+ <<
+�dl
+;
+
+8 
+	}
+}
+
+	@/home/shaco/S_data/test/test_c++/test_few_files/a/src/makefile
+
+1 #次级目录,比如当前的
+mod�
+文件夹,其下包含了
+�c
+和
+��ude
+文件夹,需要再进一层到src进行编译
+
+2 #子目录的
+Makef�e
+直接读取其子目录就行
+
+3 #SUBDIRS=
+$
+(
+sh�l
+ 
+ls
+ -
+l
+ | 
+g�p
+ ^
+d
+ | 
+awk
+ '{print $$9}')
+
+4 #直接指定为
+�c
+
+
+5 
+	gSUBDIRS
+=
+
+6 #以下同根目录下的
+makef�e
+的相同代码的解释
+
+7 
+CUR_C_SOURCE
+=
+$
+{
+w�d�rd
+ *.
+c
+}
+
+8 
+CUR_CPP_SOURCE
+=
+$
+{
+w�d�rd
+ *.
+�p
+}
+
+9 
+CUR_CXX_SOURCE
+=
+$
+{
+w�d�rd
+ *.
+cxx
+}
+
+10 
+CUR_C_OBJS
+=
+$
+{
+�tsub�
+ %.
+c
+, %.
+o
+, $(
+CUR_C_SOURCE
+)}
+
+11 
+CUR_CPP_OBJS
+=
+$
+{
+�tsub�
+ %.
+�p
+, %.
+o
+, $(
+CUR_CPP_SOURCE
+)}
+
+12 
+CUR_CXX_OBJS
++=
+$
+{
+�tsub�
+ %.
+cxx
+, %.
+o
+, $(
+CUR_CXX_SOURCE
+)}
+
+13 #�l:
+$
+(
+SUBDIRS
+�$(
+CUR_C_OBJS
+)
+
+14 
+�l
+:
+$
+(
+SUBDIRS
+�$(
+CUR_CPP_OBJS
+�$(
+CUR_CXX_SOURCE
+)
+
+15 
+	$$
+(
+SUBDIRS
+):
+ECHO
+
+
+16 
+make
+ -
+C
+ 
+$
+@
+
+17 
+	$$
+(
+CUR_C_OBJS
+):%.
+o
+:%.
+c
+
+
+18 
+	`$
+(
+CC
+�$(
+CPPFLAGS
+�$(
+LDFLAGS
+�$(
+LIBS
+�-
+c
+ 
+$
+^ -
+o
+ $(
+ROOT_DIR
+)/$(
+OBJS_DIR
+)/$@
+
+19 
+	$$
+(
+CUR_CPP_OBJS
+):%.
+o
+:%.
+�p
+
+
+20 
+	`$
+(
+CC
+�$(
+CPPFLAGS
+�$(
+LDFLAGS
+�$(
+LIBS
+�-
+c
+ 
+$
+^ -
+o
+ $(
+ROOT_DIR
+)/$(
+OBJS_DIR
+)/$@
+
+21 
+	$$
+(
+CUR_CXX_OBJS
+):%.
+o
+:%.
+cxx
+
+
+22 
+	`$
+(
+CC
+�$(
+CPPFLAGS
+�$(
+LDFLAGS
+�$(
+LIBS
+�-
+c
+ 
+$
+^ -
+o
+ $(
+ROOT_DIR
+)/$(
+OBJS_DIR
+)/$@
+
+23 
+ECHO
+:
+
+24 @
+echo
+ 
+	`$
+(
+SUBDIRS
+)
+
+	@/home/shaco/S_data/test/test_c++/test_few_files/b/include/b.h
+
+1 #�agm�
+��
+
+
+3 
+	~<io��am
+>
+
+4 
+	~<�r�g
+>
+
+6 
+	#THIS_IS_C_USE
+ "CcCCCCCCCCCCCCCcccccccccCC"
+
+	)
+
+8 
+us�g
+ 
+�me�a�
+ 
+	g�d
+;
+
+10 cڡ 
+	g�r�g
+ &
+b
+();
+
+	@/home/shaco/S_data/test/test_c++/test_few_files/b/src/b.cpp
+
+1 
+	~"b.h
+"
+
+2 
+	~"a.h
+"
+
+4 cڡ 
+	g�r�g
+ &
+	$b
+()
+
+6 
+cout
+ << 
+THIS_IS_B_USE
+ <<
+�dl
+;
+
+8 
+	}
+}
+
+	@/home/shaco/S_data/test/test_c++/test_few_files/c/include/c.h
+
+1 #�agm�
+��
+
+
+3 
+	~<io��am
+>
+
+4 
+	~<�r�g
+>
+
+6 
+us�g
+ 
+�me�a�
+ 
+	g�d
+;
+
+8 
+	#THIS_IS_A_USE
+ "A�aAAAAAAAAAA���aAAA�aAAA�AAA�AAA"
+
+	)
+
+10 cڡ 
+	g�r�g
+ &
+c
+();
+
+	@/home/shaco/S_data/test/test_c++/test_few_files/c/src/c.cpp
+
+1 
+	~"c.h
+"
+
+2 
+	~"b.h
+"
+
+4 cڡ 
+	g�r�g
+ &
+	$c
+()
+
+6 
+cout
+ << 
+THIS_IS_C_USE
+ << 
+�dl
+;
+
+8 
+	}
+}
+
+	@/home/shaco/S_data/test/test_c++/test_few_files/include/test.h
+
+1 #i�de�
+_TEST_H_
+
+
+2 
+	#_TEST_H_
+
+
+	)
+
+4 
+��
+();
+
+	@/home/shaco/S_data/test/test_c++/test_few_files/main.cpp
+
+1 
+	~<io��am
+>
+
+2 
+	~"a.h
+"
+
+3 
+	~"b.h
+"
+
+4 
+	~"c.h
+"
+
+6 
+us�g
+ 
+�me�a�
+ 
+	g�d
+;
+
+8 
+	$ma�
+()
+
+10 
+cout
+ << 
+	`a
+(�<< 
+�dl
+;
+
+11 
+cout
+ << 
+	`b
+(�<< 
+�dl
+;
+
+12 
+cout
+ << 
+	`c
+(�<< 
+�dl
+;
+
+13 
+cout
+ << "Fuck C Plu�Plus!" << 
+�dl
+;
+
+14 
+	}
+}
+
+	@/home/shaco/S_data/test/test_c++/test_few_files/test.cxx
+
+1 
+	~<io��am
+>
+
+3 
+us�g
+ 
+�me�a�
+ 
+	g�d
+;
+
+5 
+	$��
+()
+
+7 
+cout
+ << "ju��e� f� cxx"<<
+�dl
+;
+
+9 
+	}
+}
+
+	@
+1
+.
+0
+12
+722
+/home/shaco/S_data/test/test_c++/test_few_files/Makefile
+/home/shaco/S_data/test/test_c++/test_few_files/a/include/a.h
+/home/shaco/S_data/test/test_c++/test_few_files/a/makefile
+/home/shaco/S_data/test/test_c++/test_few_files/a/src/a.cpp
+/home/shaco/S_data/test/test_c++/test_few_files/a/src/makefile
+/home/shaco/S_data/test/test_c++/test_few_files/b/include/b.h
+/home/shaco/S_data/test/test_c++/test_few_files/b/src/b.cpp
+/home/shaco/S_data/test/test_c++/test_few_files/c/include/c.h
+/home/shaco/S_data/test/test_c++/test_few_files/c/src/c.cpp
+/home/shaco/S_data/test/test_c++/test_few_files/include/test.h
+/home/shaco/S_data/test/test_c++/test_few_files/main.cpp
+/home/shaco/S_data/test/test_c++/test_few_files/test.cxx

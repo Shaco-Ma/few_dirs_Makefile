@@ -1,0 +1,44 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.8	//
+BIN	Makefile	/^BIN=test_few_files$/;"	m
+BIN_DIR	Makefile	/^BIN_DIR=debug\/bin$/;"	m
+CC	Makefile	/^CC=gcc$/;"	m
+CPP	Makefile	/^CPP=g++$/;"	m
+CPPFLAGS	Makefile	/^CPPFLAGS=-Wall -std=c++11 -g -O2 -I$()$/;"	m
+CUR_CPP_OBJS	Makefile	/^CUR_CPP_OBJS=${patsubst %.cpp, %.o, $(CUR_CPP_SOURCE)}$/;"	m
+CUR_CPP_OBJS	a/makefile	/^CUR_CPP_OBJS=${patsubst %.cpp, %.o, $(CUR_CPP_SOURCE)}$/;"	m
+CUR_CPP_OBJS	a/src/makefile	/^CUR_CPP_OBJS=${patsubst %.cpp, %.o, $(CUR_CPP_SOURCE)}$/;"	m
+CUR_CPP_SOURCE	Makefile	/^CUR_CPP_SOURCE=${wildcard *.cpp}$/;"	m
+CUR_CPP_SOURCE	a/makefile	/^CUR_CPP_SOURCE=${wildcard *.cpp}$/;"	m
+CUR_CPP_SOURCE	a/src/makefile	/^CUR_CPP_SOURCE=${wildcard *.cpp}$/;"	m
+CUR_CXX_OBJS	a/makefile	/^CUR_CXX_OBJS=${patsubst %.cxx, %.o, $(CUR_CXX_SOURCE)}$/;"	m
+CUR_CXX_SOURCE	Makefile	/^CUR_CXX_SOURCE=${wildcard *.cxx}$/;"	m
+CUR_CXX_SOURCE	a/makefile	/^CUR_CXX_SOURCE=${wildcard *.cxx}$/;"	m
+CUR_CXX_SOURCE	a/src/makefile	/^CUR_CXX_SOURCE=${wildcard *.cxx}$/;"	m
+CUR_C_OBJS	Makefile	/^CUR_C_OBJS=${patsubst %.c, %.o, $(CUR_C_SOURCE)}$/;"	m
+CUR_C_OBJS	a/makefile	/^CUR_C_OBJS=${patsubst %.c, %.o, $(CUR_C_SOURCE)}$/;"	m
+CUR_C_OBJS	a/src/makefile	/^CUR_C_OBJS=${patsubst %.c, %.o, $(CUR_C_SOURCE)}$/;"	m
+CUR_C_SOURCE	Makefile	/^CUR_C_SOURCE=${wildcard *.c}$/;"	m
+CUR_C_SOURCE	a/makefile	/^CUR_C_SOURCE=${wildcard *.c}$/;"	m
+CUR_C_SOURCE	a/src/makefile	/^CUR_C_SOURCE=${wildcard *.c}$/;"	m
+INC_DIR	Makefile	/^INC_DIR=$(ROOT_DIR)\/include$/;"	m
+LDFLAGS	Makefile	/^LDFLAGS=$/;"	m
+LIBS	Makefile	/^LIBS=$/;"	m
+OBJS_DIR	Makefile	/^OBJS_DIR=debug\/obj$/;"	m
+ROOT_DIR	Makefile	/^ROOT_DIR=$(shell pwd)$/;"	m
+SUBDIRS	Makefile	/^SUBDIRS=$(shell ls -l | grep ^d | awk '{if($$9 != "debug") print $$9}')$/;"	m
+SUBDIRS	a/makefile	/^SUBDIRS=src$/;"	m
+SUBDIRS	a/src/makefile	/^SUBDIRS=$/;"	m
+THIS_IS_A_USE	c/include/c.h	8;"	d
+THIS_IS_B_USE	a/include/a.h	8;"	d
+THIS_IS_C_USE	b/include/b.h	6;"	d
+_TEST_H_	include/test.h	2;"	d
+a	a/src/a.cpp	/^const string a(void)$/;"	f
+b	b/src/b.cpp	/^const string &b(void)$/;"	f
+c	c/src/c.cpp	/^const string &c(void)$/;"	f
+main	main.cpp	/^int main(void)$/;"	f
+test	test.cxx	/^int test(void)$/;"	f
