@@ -12,12 +12,15 @@ MKDIR = mkdir -p
 ROOT_DIR=$(shell pwd)
 #最终bin文件的名字，可以更改为自己需要的
 BIN=test_few_files
+TARGET_DIR=$(ROOT_DIR)/debug
+#最终bin文件的路径
+TARGET = $(BIN_DIR)/$(BIN)
 #目标文件所在的目录
-OBJS_DIR=debug/obj
+OBJS_DIR=$(TARGET_DIR)/obj
 #目标文件
 OBJS=*.o
 #bin文件所在的目录
-BIN_DIR=debug/bin
+BIN_DIR=$(TARGET_DIR)/bin
 #所有的include文件夹
 INC_DIR=$(ROOT_DIR)/include
 INC_DIR+=$(ROOT_DIR)/a/include
@@ -27,10 +30,17 @@ INC_DIR+=$(ROOT_DIR)/c/include
 CUR_C_SOURCE=${wildcard *.c}
 CUR_CPP_SOURCE=${wildcard *.cpp}
 CUR_CXX_SOURCE=${wildcard *.cxx}
-#将对应的c文件名转为o文件后放在下面的CUR_OBJS变量中
-CUR_C_OBJS=${patsubst %.c, %.o, $(CUR_C_SOURCE)}
-CUR_CPP_OBJS=${patsubst %.cpp, %.o, $(CUR_CPP_SOURCE)}
-CUR_CXX_OBJS+=${patsubst %.cxx, %.o, $(CUR_CXX_SOURCE)}
+# 对应的目标文件（位于 OBJS_DIR）
+CUR_C_OBJS   = $(addprefix $(OBJS_DIR)/, $(patsubst %.c, %.o, $(CUR_C_SOURCE)))
+CUR_CPP_OBJS = $(addprefix $(OBJS_DIR)/, $(patsubst %.cpp, %.o, $(CUR_CPP_SOURCE)))
+CUR_CXX_OBJS = $(addprefix $(OBJS_DIR)/, $(patsubst %.cxx, %.o, $(CUR_CXX_SOURCE)))
+
+# 所有当前目录生成的 .o 文件
+CUR_ALL_OBJS = $(CUR_C_OBJS) $(CUR_CPP_OBJS) $(CUR_CXX_OBJS)
+
+# 对应的依赖文件（位于 OBJS_DIR）
+CUR_ALL_DEPS = $(CUR_ALL_OBJS:.o=.d)
+
 #表示用于 C++ 编译器的选项
 CPPFLAGS=-Wall -std=c++11 -g -O2
 CPPFLAGS+= $(addprefix -I, $(INC_DIR))
@@ -42,38 +52,94 @@ LIBS=
 #LDFLAGS告诉链接器从哪里寻找库文件
 LDFLAGS=
 #将以下变量导出到子shell中，本次相当于导出到子目录下的makefile中
-export CC BIN OBJS_DIR BIN_DIR ROOT_DIR CPP LIBS LDFLAGS CPPFLAGS
+export CC CPP AR
+export OBJS_DIR BIN_DIR ROOT_DIR MKDIR
+export CPPFLAGS LDFLAGS LIBS
 #生成需要的文件夹
-$(foreach dirname,$(sort $(OBJS_DIR) $(BIN_DIR)),$(shell $(MKDIR) $(dirname)))
+#$(foreach dirname,$(sort $(OBJS_DIR) $(BIN_DIR)),$(shell $(MKDIR) $(dirname)))
 #注意这里的顺序，需要先执行SUBDIRS最后才能是DEBUG
 #如果是cpp用下面的,c用上面的
 #all:$(SUBDIRS) $(CUR_C_OBJS) DEBUG
-all:$(SUBDIRS) $(CUR_CPP_OBJS) $(CUR_CXX_OBJS) DEBUG
+#all:$(SUBDIRS) $(CUR_C_OBJS) $(CUR_CPP_OBJS) $(CUR_CXX_OBJS) DEBUG
 #all:$(SUBDIRS) $(CUR_CPP_OBJS) DEBUG
-#递归执行子目录下的makefile文件，这是递归执行的关键
-$(SUBDIRS):ECHO
-	make -C $@
-DEBUG:ECHO
-	#直接去debug目录下执行makefile文件
-	#修改为在顶层目录到debug目录进行生成
-	#$(ROOT_DIR)/$(BIN_DIR)/$(BIN):$(ROOT_DIR)/$(OBJS_DIR)/$(OBJS)
-	$(CPP) -o $(ROOT_DIR)/$(BIN_DIR)/$(BIN) $(ROOT_DIR)/$(OBJS_DIR)/$(OBJS) $(CPPFLAGS) $(LDFLAGS) $(LIBS)
-	#make -C debug
-ECHO:
-	@echo "SUBDIRS:" $(SUBDIRS)
-	@echo "CUR_CPP_OBJS:" $(CUR_CPP_OBJS)
-	@echo "CUR_CPP_SOURCE:" $(CUR_CPP_SOURCE)
-	@echo "CUR_CXX_SOURCE:" $(CUR_CXX_SOURCE)
-	@echo "CPPFLAGS :" $(CPPFLAGS)
-#将c文件编译为o文件，并放在指定放置目标文件的目录中即OBJS_DIR
-$(CUR_C_OBJS):%.o:%.c
-	$(CC) $(CPPFLAGS) $(LDFLAGS) $(LIBS) -c $^ -o $(ROOT_DIR)/$(OBJS_DIR)/$@
-$(CUR_CPP_OBJS):%.o:%.cpp
-	$(CPP) $(CPPFLAGS) $(LDFLAGS) $(LIBS) -c $^ -o $(ROOT_DIR)/$(OBJS_DIR)/$@
-$(CUR_CXX_OBJS):%.o:%.cxx
-	$(CPP) $(CPPFLAGS) $(LDFLAGS) $(LIBS) -c $^ -o $(ROOT_DIR)/$(OBJS_DIR)/$@
+# ----------------- 顶级目标 -----------------
+.PHONY: all clean info $(SUBDIRS) deps $(SUBDIRS)
+all: info $(SUBDIRS) $(TARGET)
+	@echo "==== Build finished ===="
 
-PHONY : clean
+# ----------------- 目录创建 -----------------
+$(OBJS_DIR) $(BIN_DIR):
+	$(MKDIR) $@
+	@echo "==== makedir finished ===="
+
+
+# 确保子目录一定被编译
+$(SUBDIRS): info
+	@echo "==== Entering subdirectory $@ ===="
+	$(MAKE) -C $@
+
+# ----------------- 手动生成依赖文件（提前完成，不影响 .o 编译） -----------------
+deps: $(CUR_ALL_DEPS)
+
+# 将 deps 作为 .o 编译的前置步骤，但 .o 本身不直接依赖 .d 文件
+# 这样 .d 的生成不会因为 .o 的更新而触发，反之亦然
+$(CUR_ALL_OBJS): | deps $(OBJS_DIR)
+
+# ----------------- 手动生成 .d 文件规则 -----------------
+
+# 为 .c 文件生成依赖文件
+$(OBJS_DIR)/%.d: %.c | $(OBJS_DIR)
+	@echo "Generating dependency for $<"
+	@$(CC) -MM $(CPPFLAGS) $< | sed 's,\($*\)\.o[ :]*,$(OBJS_DIR)/\1.o $@ : ,g' > $@
+
+# 为 .cpp 文件生成依赖文件
+$(OBJS_DIR)/%.d: %.cpp | $(OBJS_DIR)
+	@echo "Generating dependency for $<"
+	@$(CPP) -MM $(CPPFLAGS) $< | sed 's,\($*\)\.o[ :]*,$(OBJS_DIR)/\1.o $@ : ,g' > $@
+
+# 为 .cxx 文件生成依赖文件
+$(OBJS_DIR)/%.d: %.cxx | $(OBJS_DIR)
+	@echo "Generating dependency for $<"
+	@$(CPP) -MM $(CPPFLAGS) $< | sed 's,\($*\)\.o[ :]*,$(OBJS_DIR)/\1.o $@ : ,g' > $@
+
+# ----------------- 编译规则 -----------------
+
+# 编译 .c 文件为 .o
+$(OBJS_DIR)/%.o: %.c $(OBJS_DIR)/%.d
+	$(CC) $(CPPFLAGS) $(LDFLAGS) $(LIBS) -c $< -o $@
+
+# 编译 .cpp 文件为 .o
+$(OBJS_DIR)/%.o: %.cpp $(OBJS_DIR)/%.d
+	$(CPP) $(CPPFLAGS) $(LDFLAGS) $(LIBS) -c $< -o $@
+
+# 编译 .cxx 文件为 .o
+$(OBJS_DIR)/%.o: %.cxx $(OBJS_DIR)/%.d
+	$(CPP) $(CPPFLAGS) $(LDFLAGS) $(LIBS) -c $< -o $@
+
+# ----------------- 包含依赖文件 -----------------
+
+# 如果 .d 文件存在就包含，不存在也不报错
+-include $(CUR_ALL_DEPS)
+
+# ----------------- 最终链接 -----------------
+# 收集所有 .o 文件（递归查找）
+ALL_OBJS = $(shell find $(OBJS_DIR) -name "*.o" 2>/dev/null)
+
+$(TARGET): $(CUR_ALL_OBJS) | $(BIN_DIR)
+	@echo "==== Linking $@ ===="
+	@echo "Objects found: $(ALL_OBJS)"
+	$(CPP) -o $@ $(ALL_OBJS) $(LDFLAGS) $(LIBS)
+
+# ----------------- 清理 -----------------
 clean:
-	@rm -rf $(OBJS_DIR)
-	#@rm -rf $(BIN_DIR)
+	@rm -rf $(TARGET_DIR)
+
+# 调试信息
+info:
+	@echo "SUBDIRS:        $(SUBDIRS)"
+	@echo "CUR_C_SOURCE:   $(CUR_C_SOURCE)"
+	@echo "CUR_CPP_SOURCE: $(CUR_CPP_SOURCE)"
+	@echo "CUR_CXX_SOURCE: $(CUR_CXX_SOURCE)"
+	@echo "CUR_ALL_OBJS:   $(CUR_ALL_OBJS)"
+	@echo "CUR_ALL_DEPS:   $(CUR_ALL_DEPS)"
+
