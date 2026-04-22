@@ -2,10 +2,9 @@
 #子目录的Makefile直接读取其子目录就行
 # 计算当前目录相对于根目录的路径
 REL_PATH = $(shell realpath --relative-to=$(ROOT_DIR) $(shell pwd))
-
 # 定义本模块的输出子目录（如 debug/obj/a/src）
 MOD_OBJS_DIR = $(OBJS_DIR)/$(REL_PATH)
-
+#需要指定头文件目录的类型等
 SUBDIRS=$(shell ls -l | grep ^d | awk '{if($$9 != "inc" && $$9 != "include") print $$9}')
 #直接指定为src
 #SUBDIRS=src
@@ -38,7 +37,7 @@ $(SUBDIRS):
 
 $(MOD_OBJS_DIR)/%.d: %.c | $(MOD_OBJS_DIR)
 	@echo "Generating dependency for $<"
-	@$(CC) -MM $(CPPFLAGS) $< | sed 's,\($*\)\.o[ :]*,$(MOD_OBJS_DIR)/\1.o $@ : ,g' > $@
+	@$(CC) -MM $(CFLAGS) $< | sed 's,\($*\)\.o[ :]*,$(MOD_OBJS_DIR)/\1.o $@ : ,g' > $@
 
 $(MOD_OBJS_DIR)/%.d: %.cpp | $(MOD_OBJS_DIR)
 	@echo "Generating dependency for $<"
@@ -52,7 +51,7 @@ $(MOD_OBJS_DIR)/%.d: %.cxx | $(MOD_OBJS_DIR)
 # 注意：.o 规则依赖对应的 .d 文件，以实现头文件变更触发重新编译
 
 $(MOD_OBJS_DIR)/%.o: %.c $(MOD_OBJS_DIR)/%.d
-	$(CC) $(CPPFLAGS) $(LDFLAGS) $(LIBS) -c $< -o $@
+	$(CC) $(CFLAGS) $(LDFLAGS) $(LIBS) -c $< -o $@
 
 $(MOD_OBJS_DIR)/%.o: %.cpp $(MOD_OBJS_DIR)/%.d
 	$(CPP) $(CPPFLAGS) $(LDFLAGS) $(LIBS) -c $< -o $@

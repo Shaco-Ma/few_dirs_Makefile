@@ -37,7 +37,7 @@ $(SUBDIRS):
 
 $(MOD_OBJS_DIR)/%.d: %.c | $(MOD_OBJS_DIR)
 	@echo "Generating dependency for $<"
-	@$(CC) -MM $(CPPFLAGS) $< | sed 's,\($*\)\.o[ :]*,$(MOD_OBJS_DIR)/\1.o $@ : ,g' > $@
+	@$(CC) -MM $(CFLAGS) $< | sed 's,\($*\)\.o[ :]*,$(MOD_OBJS_DIR)/\1.o $@ : ,g' > $@
 
 $(MOD_OBJS_DIR)/%.d: %.cpp | $(MOD_OBJS_DIR)
 	@echo "Generating dependency for $<"
@@ -51,7 +51,7 @@ $(MOD_OBJS_DIR)/%.d: %.cxx | $(MOD_OBJS_DIR)
 # 注意：.o 规则依赖对应的 .d 文件，以实现头文件变更触发重新编译
 
 $(MOD_OBJS_DIR)/%.o: %.c $(MOD_OBJS_DIR)/%.d
-	$(CC) $(CPPFLAGS) $(LDFLAGS) $(LIBS) -c $< -o $@
+	$(CC) $(CFLAGS) $(LDFLAGS) $(LIBS) -c $< -o $@
 
 $(MOD_OBJS_DIR)/%.o: %.cpp $(MOD_OBJS_DIR)/%.d
 	$(CPP) $(CPPFLAGS) $(LDFLAGS) $(LIBS) -c $< -o $@

@@ -42,6 +42,8 @@ CUR_ALL_OBJS = $(CUR_C_OBJS) $(CUR_CPP_OBJS) $(CUR_CXX_OBJS)
 CUR_ALL_DEPS = $(CUR_ALL_OBJS:.o=.d)
 
 #表示用于 C++ 编译器的选项
+CFLAGS=-Wall -g -O2
+CFLAGS+= $(addprefix -I, $(INC_DIR))
 CPPFLAGS=-Wall -std=c++11 -g -O2
 CPPFLAGS+= $(addprefix -I, $(INC_DIR))
 #失败的错误的
@@ -54,7 +56,7 @@ LDFLAGS=
 #将以下变量导出到子shell中，本次相当于导出到子目录下的makefile中
 export CC CPP AR
 export OBJS_DIR BIN_DIR ROOT_DIR MKDIR
-export CPPFLAGS LDFLAGS LIBS
+export CPPFLAGS LDFLAGS LIBS CFLAGS
 #生成需要的文件夹
 #$(foreach dirname,$(sort $(OBJS_DIR) $(BIN_DIR)),$(shell $(MKDIR) $(dirname)))
 #注意这里的顺序，需要先执行SUBDIRS最后才能是DEBUG
@@ -90,7 +92,7 @@ $(CUR_ALL_OBJS): | deps $(OBJS_DIR)
 # 为 .c 文件生成依赖文件
 $(OBJS_DIR)/%.d: %.c | $(OBJS_DIR)
 	@echo "Generating dependency for $<"
-	@$(CC) -MM $(CPPFLAGS) $< | sed 's,\($*\)\.o[ :]*,$(OBJS_DIR)/\1.o $@ : ,g' > $@
+	@$(CC) -MM $(CFLAGS) $< | sed 's,\($*\)\.o[ :]*,$(OBJS_DIR)/\1.o $@ : ,g' > $@
 
 # 为 .cpp 文件生成依赖文件
 $(OBJS_DIR)/%.d: %.cpp | $(OBJS_DIR)
@@ -106,7 +108,7 @@ $(OBJS_DIR)/%.d: %.cxx | $(OBJS_DIR)
 
 # 编译 .c 文件为 .o
 $(OBJS_DIR)/%.o: %.c $(OBJS_DIR)/%.d
-	$(CC) $(CPPFLAGS) $(LDFLAGS) $(LIBS) -c $< -o $@
+	$(CC) $(CFLAGS) $(LDFLAGS) $(LIBS) -c $< -o $@
 
 # 编译 .cpp 文件为 .o
 $(OBJS_DIR)/%.o: %.cpp $(OBJS_DIR)/%.d
