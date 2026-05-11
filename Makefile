@@ -1,7 +1,9 @@
-#设置编译器
-CROSS_COMPILE :=
-CC = $(CROSS_COMPILE)gcc
-CPP = $(CROSS_COMPILE)g++
+#设置编译器,绝对路径
+CROSS_COMPILE := /home/shaco/buildroot/host/bin/arm-linux-gnueabi-
+SYSROOT ?= /home/shaco/buildroot/host/arm-buildroot-linux-gnueabi/sysroot/
+#修改下面的参数加上sysroot即可
+CC = $(CROSS_COMPILE)gcc --sysroot=$(SYSROOT)
+CPP = $(CROSS_COMPILE)g++ --sysroot=$(SYSROOT)
 AR = $(CROSS_COMPILE)ar
 #debug文件夹里的makefile文件需要最后执行，所以这里需要执行的子目录要排除debug文件夹，这里使用awk排除了debug文件夹，读取剩下的文件夹
 SUBDIRS=$(shell ls -l | grep ^d | awk '{if($$9 != "debug" && $$9 != "include") print $$9}')
