@@ -1,4 +1,5 @@
 #include <iostream>
+#include "aa.h"
 #include "a.h"
 #include "b.h"
 #include "c.h"
@@ -8,6 +9,7 @@ using namespace std;
 
 int main(void)
 {
+	print_cur();
     cout << a() << endl;
     cout << b() << endl;
     cout << c() << endl;

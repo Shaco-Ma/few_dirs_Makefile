@@ -1,12 +1,13 @@
 #设置编译器,绝对路径
-CROSS_COMPILE := /home/shaco/buildroot/host/bin/arm-linux-gnueabi-
-SYSROOT ?= /home/shaco/buildroot/host/arm-buildroot-linux-gnueabi/sysroot/
+#CROSS_COMPILE := /home/shaco/buildroot/host/bin/arm-linux-gnueabi-
+#SYSROOT ?= /home/shaco/buildroot/host/arm-buildroot-linux-gnueabi/sysroot/
 #修改下面的参数加上sysroot即可
 CC = $(CROSS_COMPILE)gcc --sysroot=$(SYSROOT)
 CPP = $(CROSS_COMPILE)g++ --sysroot=$(SYSROOT)
 AR = $(CROSS_COMPILE)ar
 #debug文件夹里的makefile文件需要最后执行，所以这里需要执行的子目录要排除debug文件夹，这里使用awk排除了debug文件夹，读取剩下的文件夹
-SUBDIRS=$(shell ls -l | grep ^d | awk '{if($$9 != "debug" && $$9 != "include") print $$9}')
+#SUBDIRS=$(shell ls -l | grep ^d | awk '{if($$9 != "debug" && $$9 != "include") print $$9}')
+SUBDIRS := $(filter-out debug include,$(patsubst %/,%,$(wildcard */)))
 #无需下一行的注释代码，因为我们已经知道debug里的makefile是最后执行的，所以最后直接去debug目录下执行指定的makefile文件就行，具体下面有注释
 #DEBUG=$(shell ls -l | grep ^d | awk '{if($$9 == "debug") print $$9}')
 MKDIR = mkdir -p
@@ -15,14 +16,12 @@ ROOT_DIR=$(shell pwd)
 #最终bin文件的名字，可以更改为自己需要的
 BIN=test_few_files
 TARGET_DIR=$(ROOT_DIR)/debug
+#bin文件所在的目录
+BIN_DIR=$(TARGET_DIR)/bin
 #最终bin文件的路径
 TARGET = $(BIN_DIR)/$(BIN)
 #目标文件所在的目录
 OBJS_DIR=$(TARGET_DIR)/obj
-#目标文件
-OBJS=*.o
-#bin文件所在的目录
-BIN_DIR=$(TARGET_DIR)/bin
 #所有的include文件夹
 INC_DIR=$(ROOT_DIR)/include
 INC_DIR+=$(ROOT_DIR)/a/include
@@ -67,7 +66,7 @@ export CPPFLAGS LDFLAGS LIBS CFLAGS
 #all:$(SUBDIRS) $(CUR_C_OBJS) $(CUR_CPP_OBJS) $(CUR_CXX_OBJS) DEBUG
 #all:$(SUBDIRS) $(CUR_CPP_OBJS) DEBUG
 # ----------------- 顶级目标 -----------------
-.PHONY: all clean info $(SUBDIRS) deps $(SUBDIRS)
+.PHONY: all clean info $(SUBDIRS) #deps $(SUBDIRS)
 all: info $(SUBDIRS) $(TARGET)
 	@echo "==== Build finished ===="
 
@@ -78,7 +77,7 @@ $(OBJS_DIR) $(BIN_DIR):
 
 
 # 确保子目录一定被编译
-$(SUBDIRS): info
+$(SUBDIRS): #info
 	@echo "==== Entering subdirectory $@ ===="
 	$(MAKE) -C $@
 
@@ -129,7 +128,7 @@ $(OBJS_DIR)/%.o: %.cxx $(OBJS_DIR)/%.d
 # 收集所有 .o 文件（递归查找）
 ALL_OBJS = $(shell find $(OBJS_DIR) -name "*.o" 2>/dev/null)
 
-$(TARGET): $(CUR_ALL_OBJS) | $(BIN_DIR)
+$(TARGET): $(SUBDIRS) $(CUR_ALL_OBJS) | $(BIN_DIR)
 	@echo "==== Linking $@ ===="
 	@echo "Objects found: $(ALL_OBJS)"
 	$(CPP) -o $@ $(ALL_OBJS) $(LDFLAGS) $(LIBS)
