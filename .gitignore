@@ -30,3 +30,10 @@
 *.exe
 *.out
 *.app
+
+cscope*
+tags
+
+# Build output
+build/
+debug/
